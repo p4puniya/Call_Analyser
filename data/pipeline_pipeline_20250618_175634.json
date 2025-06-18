@@ -1,0 +1,75 @@
+{
+  "pipeline_id": "pipeline_20250618_175634",
+  "timestamp": "2025-06-18T17:56:34.913472",
+  "input_count": 3,
+  "analysis_results": [
+    "call_id='call_001' status='analyzed' reason=None analysis=AnalysisResult(intent='Customer wanted to order delivery to Bandra West', bot_response_summary=\"The bot provided general information about the restaurant's operating hours instead of addressing the delivery inquiry directly.\", issue_detected=True, issue_reason=\"The bot failed to recognize the customer's intent and did not provide a relevant response to the delivery query.\", suggested_fix=\"Implement intent recognition for delivery queries and provide a clear 'yes' or 'no' response. Ensure access to delivery information is functional.\", confidence_score=0.6) error=None",
+    "call_id='call_002' status='skipped' reason='No issues detected (confidence: 0.00)' analysis=None error=None",
+    "call_id='call_003' status='analyzed' reason=None analysis=AnalysisResult(intent='Customer wanted to order a large Supreme pizza for delivery', bot_response_summary='The bot effectively guided the customer through the menu, provided pricing information, took the order, and confirmed delivery details', issue_detected=False, issue_reason='No issues detected', suggested_fix='N/A', confidence_score=1.0) error=None"
+  ],
+  "fix_results": {
+    "call_001": {
+      "prompt_improvements": [
+        {
+          "issue": "Lack of clear delivery ordering prompt",
+          "current_prompt": "Welcome to our restaurant. How can I assist you today?",
+          "suggested_prompt": "Welcome to our restaurant. Would you like to place a delivery order to Bandra West?",
+          "rationale": "By including a specific prompt about delivery orders to Bandra West, customers are more likely to express their intent clearly."
+        }
+      ],
+      "logic_improvements": [
+        {
+          "issue": "Intent recognition failure for delivery queries",
+          "current_behavior": "Providing general information about operating hours instead of addressing delivery inquiries directly",
+          "suggested_behavior": "Implement intent recognition for delivery queries and provide a clear 'yes' or 'no' response to delivery requests",
+          "implementation": "Utilize natural language processing to identify keywords related to delivery orders and provide specific delivery-related responses."
+        }
+      ],
+      "training_suggestions": [
+        {
+          "scenario": "Delivery order inquiries",
+          "examples": [
+            "Customer: Can I order delivery to Bandra West?",
+            "Bot: Sure, let me assist you with that."
+          ],
+          "expected_outcome": "Bot recognizes delivery intent and provides relevant assistance."
+        }
+      ],
+      "priority": "high",
+      "estimated_impact": "Improved intent recognition and response accuracy for delivery queries can enhance customer satisfaction and increase successful order placements."
+    }
+  },
+  "summary": {
+    "common_issues": [
+      {
+        "issue": "Intent recognition accuracy",
+        "frequency": "2 out of 2 calls",
+        "impact": "Moderate"
+      }
+    ],
+    "top_improvements": [
+      {
+        "improvement": "Enhance intent recognition capabilities",
+        "priority": "high",
+        "expected_benefit": "Improved customer satisfaction and faster query resolution"
+      }
+    ],
+    "overall_quality_score": 0.5,
+    "trends": "Consistent issue with intent recognition accuracy across calls",
+    "recommendations": [
+      "Implement machine learning models to better understand customer intents",
+      "Provide training data to improve bot responses"
+    ]
+  },
+  "statistics": {
+    "total_calls": 3,
+    "analyzed": 2,
+    "skipped": 1,
+    "errors": 0,
+    "issues_detected": 1,
+    "issue_rate": 0.5,
+    "average_confidence": 0.8,
+    "success_rate": 0.6666666666666666,
+    "processing_efficiency": 1.0
+  }
+}

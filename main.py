@@ -1,9 +1,9 @@
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import logging
 import time
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from models import (
     CallTranscript, 
@@ -13,6 +13,8 @@ from models import (
 )
 from analyzer import analyzer
 from prefilter import failure_detector
+from pipeline import pipeline
+from storage import get_analysis_history, get_analysis_stats, clear_analysis_data, backup_analysis_data
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -44,6 +46,12 @@ async def root():
         "endpoints": {
             "analyze_single": "/analyze-call",
             "analyze_batch": "/analyze-batch",
+            "pipeline": "/pipeline",
+            "ingest": "/ingest-transcript",
+            "analysis_history": "/analysis-history",
+            "analysis_stats": "/analysis-stats",
+            "analysis_backup": "/analysis-backup",
+            "call_history": "/analysis-history/{call_id}",
             "health": "/health",
             "docs": "/docs"
         }
@@ -108,6 +116,62 @@ async def analyze_batch_calls(request: BatchAnalysisRequest):
     except Exception as e:
         logger.error(f"Error in batch analysis: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Batch analysis failed: {str(e)}")
+
+@app.post("/pipeline")
+async def run_complete_pipeline(request: BatchAnalysisRequest):
+    """
+    🚀 COMPLETE PIPELINE: Analyze → Generate Fixes → Create Summary
+    
+    This is the main endpoint that does everything automatically:
+    1. Analyzes all transcripts in the batch
+    2. Generates detailed fixes for problematic calls
+    3. Creates a comprehensive summary of all results
+    4. Saves everything to files
+    5. Returns complete results
+    
+    Perfect for processing large batches of calls with full analysis.
+    """
+    try:
+        logger.info(f"Starting complete pipeline for {len(request.transcripts)} calls")
+        
+        # Run the complete pipeline
+        result = await pipeline.process_batch_pipeline(request.transcripts)
+        
+        if "error" in result:
+            raise HTTPException(status_code=500, detail=result["error"])
+        
+        logger.info(f"Pipeline completed successfully. Pipeline ID: {result['pipeline_id']}")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Pipeline failed: {str(e)}")
+
+@app.post("/ingest-transcript")
+async def ingest_transcript(transcript: CallTranscript, metadata: Dict[str, Any] = None):
+    """
+    📥 Ingest a single transcript with optional metadata
+    
+    This endpoint:
+    1. Receives a transcript (from Certus webhook, etc.)
+    2. Stores it for processing
+    3. Optionally triggers immediate analysis if marked as failed
+    4. Returns status of ingestion
+    
+    Use this for real-time transcript ingestion from call systems.
+    """
+    try:
+        logger.info(f"Ingesting transcript: {transcript.call_id}")
+        
+        # Ingest the transcript
+        result = await pipeline.ingest_transcript(transcript, metadata)
+        
+        logger.info(f"Transcript {transcript.call_id} ingested: {result['status']}")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error ingesting transcript {transcript.call_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
 
 @app.post("/prefilter-check")
 async def check_prefilter(transcript: CallTranscript):
@@ -190,6 +254,140 @@ async def get_system_stats():
         "bot_confusion_patterns_count": len(failure_detector.bot_confusion_patterns),
         "short_response_threshold": failure_detector.short_response_threshold
     }
+
+@app.get("/analysis-history")
+async def get_analysis_history_endpoint(
+    start_date: Optional[str] = Query(None, description="Start date in ISO format (e.g., 2024-01-01T00:00:00Z)"),
+    end_date: Optional[str] = Query(None, description="End date in ISO format (e.g., 2024-12-31T23:59:59Z)"),
+    call_id: Optional[str] = Query(None, description="Filter by specific call ID"),
+    status: Optional[str] = Query(None, description="Filter by status: analyzed, skipped, or error"),
+    limit: Optional[int] = Query(None, description="Maximum number of results to return", ge=1, le=1000)
+):
+    """
+    📊 Get analysis history with optional filtering
+    
+    This endpoint retrieves all stored analysis results with powerful filtering options:
+    - Date range filtering (start_date, end_date)
+    - Call ID filtering
+    - Status filtering (analyzed, skipped, error)
+    - Result limiting
+    
+    Examples:
+    - GET /analysis-history (all results)
+    - GET /analysis-history?start_date=2024-01-01T00:00:00Z&end_date=2024-01-31T23:59:59Z
+    - GET /analysis-history?status=analyzed&limit=10
+    - GET /analysis-history?call_id=call_123
+    """
+    try:
+        logger.info(f"Retrieving analysis history with filters: start_date={start_date}, end_date={end_date}, call_id={call_id}, status={status}, limit={limit}")
+        
+        results = get_analysis_history(
+            start_date=start_date,
+            end_date=end_date,
+            call_id=call_id,
+            status=status,
+            limit=limit
+        )
+        
+        return {
+            "total_results": len(results),
+            "filters_applied": {
+                "start_date": start_date,
+                "end_date": end_date,
+                "call_id": call_id,
+                "status": status,
+                "limit": limit
+            },
+            "results": results
+        }
+        
+    except Exception as e:
+        logger.error(f"Error retrieving analysis history: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve analysis history: {str(e)}")
+
+@app.get("/analysis-stats")
+async def get_analysis_statistics():
+    """
+    📈 Get comprehensive statistics about stored analysis data
+    
+    Returns detailed statistics including:
+    - Total number of analyses
+    - Date range of stored data
+    - Breakdown by status
+    - Unique call IDs
+    """
+    try:
+        stats = get_analysis_stats()
+        
+        if "error" in stats:
+            raise HTTPException(status_code=500, detail=stats["error"])
+        
+        return stats
+        
+    except Exception as e:
+        logger.error(f"Error retrieving analysis statistics: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve statistics: {str(e)}")
+
+@app.delete("/analysis-history")
+async def clear_analysis_history():
+    """
+    🗑️ Clear all analysis history (use with caution!)
+    
+    This will permanently delete all stored analysis data.
+    Consider creating a backup first using /analysis-backup.
+    """
+    try:
+        success = clear_analysis_data()
+        
+        if success:
+            return {"message": "Analysis history cleared successfully", "status": "success"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to clear analysis history")
+        
+    except Exception as e:
+        logger.error(f"Error clearing analysis history: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to clear analysis history: {str(e)}")
+
+@app.post("/analysis-backup")
+async def create_analysis_backup(backup_path: Optional[str] = None):
+    """
+    💾 Create a backup of analysis data
+    
+    Creates a timestamped backup of all analysis data.
+    Useful before clearing data or for data migration.
+    """
+    try:
+        success = backup_analysis_data(backup_path)
+        
+        if success:
+            return {"message": "Analysis backup created successfully", "status": "success"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create analysis backup")
+        
+    except Exception as e:
+        logger.error(f"Error creating analysis backup: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to create backup: {str(e)}")
+
+@app.get("/analysis-history/{call_id}")
+async def get_call_analysis_history(call_id: str):
+    """
+    📋 Get analysis history for a specific call ID
+    
+    Returns all analysis records for the specified call ID.
+    Useful for tracking how a specific call was processed over time.
+    """
+    try:
+        results = get_analysis_history(call_id=call_id)
+        
+        return {
+            "call_id": call_id,
+            "total_records": len(results),
+            "results": results
+        }
+        
+    except Exception as e:
+        logger.error(f"Error retrieving analysis history for call {call_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve call history: {str(e)}")
 
 # Error handlers
 @app.exception_handler(Exception)
