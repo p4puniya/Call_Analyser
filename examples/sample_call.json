@@ -1,0 +1,37 @@
+{
+  "call_id": "call_12345",
+  "dialog": [
+    {
+      "speaker": "user",
+      "text": "Hi, I'd like to order delivery to Bandra West"
+    },
+    {
+      "speaker": "bot",
+      "text": "Welcome to our restaurant! We are open from 11 AM to 10 PM daily."
+    },
+    {
+      "speaker": "user",
+      "text": "That's not what I asked. Do you deliver to Bandra West?"
+    },
+    {
+      "speaker": "bot",
+      "text": "I apologize for the confusion. Let me check our delivery areas."
+    },
+    {
+      "speaker": "user",
+      "text": "Can you just tell me yes or no?"
+    },
+    {
+      "speaker": "bot",
+      "text": "I'm sorry, I'm having trouble accessing our delivery information right now."
+    },
+    {
+      "speaker": "user",
+      "text": "This is ridiculous. I'm hanging up."
+    }
+  ],
+  "metadata": {
+    "restaurant": "Sample Restaurant",
+    "timestamp": "2024-01-15T14:30:00Z"
+  }
+} 

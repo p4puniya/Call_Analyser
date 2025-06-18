@@ -1,0 +1,53 @@
+{
+  "call_id": "call_67890",
+  "dialog": [
+    {
+      "speaker": "user",
+      "text": "Hi, I'd like to order a pizza for delivery"
+    },
+    {
+      "speaker": "bot",
+      "text": "Great! I'd be happy to help you order a pizza. What size would you like?"
+    },
+    {
+      "speaker": "user",
+      "text": "Large please"
+    },
+    {
+      "speaker": "bot",
+      "text": "Perfect! We have several large pizza options. Would you like our classic Margherita, Pepperoni, or Supreme?"
+    },
+    {
+      "speaker": "user",
+      "text": "Pepperoni sounds good"
+    },
+    {
+      "speaker": "bot",
+      "text": "Excellent choice! Your large pepperoni pizza will be ready in 25-30 minutes. What's your delivery address?"
+    },
+    {
+      "speaker": "user",
+      "text": "123 Main Street, Apartment 4B"
+    },
+    {
+      "speaker": "bot",
+      "text": "Perfect! I have your order: 1 large pepperoni pizza for delivery to 123 Main Street, Apartment 4B. Your total is $18.99. Would you like to pay with card or cash?"
+    },
+    {
+      "speaker": "user",
+      "text": "Card please"
+    },
+    {
+      "speaker": "bot",
+      "text": "Great! Your order is confirmed and will be delivered in 25-30 minutes. Thank you for choosing us!"
+    },
+    {
+      "speaker": "user",
+      "text": "Thank you!"
+    }
+  ],
+  "metadata": {
+    "restaurant": "Sample Restaurant",
+    "timestamp": "2024-01-15T15:45:00Z"
+  }
+} 
