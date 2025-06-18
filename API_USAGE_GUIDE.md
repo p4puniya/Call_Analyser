@@ -24,6 +24,7 @@ http://localhost:8000
 | `/analyze-batch` | POST | Analyze multiple calls | Array of transcripts | Batch results |
 | `/pipeline` | POST | **🚀 Complete automated workflow** | Array of transcripts | Full pipeline results |
 | `/ingest-transcript` | POST | Ingest single transcript | Transcript + metadata | Ingestion status |
+| `/webhook` | POST | **🔗 Certus webhook integration** | Failed call transcript | Webhook acknowledgment |
 | `/prefilter-check` | POST | Test failure detection | Raw transcript | Prefilter result |
 | `/generate-fixes` | POST | Get detailed fixes | Analysis result | Fix suggestions |
 | `/generate-summary` | POST | Summarize analyses | Array of analyses | Summary report |
@@ -169,6 +170,131 @@ The pipeline automatically saves:
 - `data/pipeline_[timestamp].json` - Complete pipeline results
 - `data/transcript_[call_id].json` - Individual transcripts
 - `data/analysis_[call_id].json` - Individual analysis results
+
+---
+
+## 🔗 **NEW: Certus Webhook Integration (`/webhook`)**
+
+**Purpose**: **Automatic failed call ingestion from Certus!** This endpoint allows Certus to automatically send failed call transcripts without manual intervention.
+
+### What It Does
+1. ✅ **Receives failed call transcripts** from Certus automatically
+2. ✅ **Processes in background** (non-blocking for Certus)
+3. ✅ **Returns immediate acknowledgment** (within 100ms)
+4. ✅ **Analyzes the call** using AI
+5. ✅ **Stores results** for later review
+
+### Step-by-Step Instructions
+
+#### Step 1: Configure Certus Webhook
+In your Certus dashboard, set up the webhook:
+- **URL**: `http://your-server:8000/webhook`
+- **Method**: `POST`
+- **Content-Type**: `application/json`
+- **Trigger**: When call fails
+
+#### Step 2: Certus Payload Format
+Certus should send this JSON structure:
+
+```json
+{
+  "call_id": "certus_call_12345",
+  "dialog": [
+    {
+      "speaker": "user",
+      "text": "Do you deliver to Bandra?",
+      "timestamp": "2024-01-15T14:30:00Z"
+    },
+    {
+      "speaker": "bot",
+      "text": "We are open 11 to 10.",
+      "timestamp": "2024-01-15T14:30:05Z"
+    },
+    {
+      "speaker": "user",
+      "text": "That's not what I asked!",
+      "timestamp": "2024-01-15T14:30:10Z"
+    }
+  ],
+  "metadata": {
+    "certus_call_id": "certus_12345",
+    "failure_reason": "intent_misunderstanding",
+    "call_duration": 45,
+    "customer_satisfaction": "low",
+    "restaurant_id": "rest_001",
+    "customer_id": "cust_456"
+  }
+}
+```
+
+#### Step 3: Test the Webhook
+```bash
+curl -X POST http://localhost:8000/webhook \
+  -H "Content-Type: application/json" \
+  -d @examples/certus_webhook_test.json
+```
+
+#### Step 4: Understand the Response
+```json
+{
+  "status": "received",
+  "call_id": "certus_call_12345",
+  "message": "Call transcript queued for analysis",
+  "webhook_id": "webhook_1705312345_certus_call_12345",
+  "timestamp": 1705312345.123
+}
+```
+
+### Background Processing
+The webhook returns immediately, but processing happens in the background:
+
+1. **Immediate Response**: Acknowledgment within 100ms
+2. **Background Analysis**: Full AI analysis runs asynchronously
+3. **Automatic Storage**: Results saved to analysis history
+4. **Logging**: Detailed logs for monitoring
+
+### Monitoring Webhook Activity
+
+#### Check Recent Webhooks
+```bash
+# View recent webhook calls
+curl "http://localhost:8000/analysis-history?limit=10"
+
+# Filter by webhook source
+curl "http://localhost:8000/analysis-history?status=analyzed&limit=5"
+```
+
+#### Check Webhook Statistics
+```bash
+curl http://localhost:8000/analysis-stats
+```
+
+#### View Specific Call
+```bash
+curl http://localhost:8000/analysis-history/certus_call_12345
+```
+
+### Log Monitoring
+The system logs webhook activity with these patterns:
+```
+🔗 Certus webhook received for call: certus_call_12345
+🔄 Processing Certus webhook call: certus_call_12345
+✅ Certus call certus_call_12345 analyzed successfully
+🚨 Issues detected in Certus call certus_call_12345: intent_misunderstanding
+✅ Certus webhook processing completed for call: certus_call_12345
+```
+
+### Error Handling
+- **Invalid Payload**: Returns 422 with validation errors
+- **Processing Errors**: Logged but doesn't affect webhook response
+- **Network Issues**: Certus should implement retry logic
+- **Server Errors**: Returns 500 with error details
+
+### Production Considerations
+- **HTTPS**: Use HTTPS in production
+- **Authentication**: Consider adding webhook authentication
+- **Rate Limiting**: Monitor webhook volume
+- **Monitoring**: Set up alerts for webhook failures
 
 ---
 
@@ -902,6 +1028,23 @@ curl "http://localhost:8000/analysis-history?status=analyzed&start_date=2024-01-
 # (Extract analysis objects from step 3 and use /generate-summary)
 ```
 
+### Example 7: **🔗 Certus Webhook Testing**
+```bash
+# 1. Test webhook with sample data
+curl -X POST http://localhost:8000/webhook \
+  -H "Content-Type: application/json" \
+  -d @examples/certus_webhook_test.json
+
+# 2. Check webhook was processed
+curl "http://localhost:8000/analysis-history?limit=1"
+
+# 3. Run comprehensive webhook tests
+python examples/test_webhook.py
+
+# 4. Monitor webhook activity
+curl http://localhost:8000/analysis-stats
+```
+
 ---
 
 ## 🛠️ Troubleshooting
@@ -942,14 +1085,17 @@ curl "http://localhost:8000/analysis-history?status=analyzed&start_date=2024-01-
 
 1. **Use `/pipeline` endpoint** for batch processing - it does everything automatically!
 2. **Use `/ingest-transcript`** for real-time call ingestion
-3. **Always validate JSON** before sending
-4. **Save analysis results** for summary generation
-5. **Monitor system stats** regularly
-6. **Test with sample data** before production use
-7. **📊 Use analysis history** to track trends and patterns over time
-8. **📈 Check analysis statistics** regularly to monitor system performance
-9. **💾 Create backups** before clearing analysis data
-10. **🔍 Filter analysis history** by date, status, or call ID for targeted insights
+3. **🔗 Use `/webhook`** for automatic Certus integration
+4. **Always validate JSON** before sending
+5. **Save analysis results** for summary generation
+6. **Monitor system stats** regularly
+7. **Test with sample data** before production use
+8. **📊 Use analysis history** to track trends and patterns over time
+9. **📈 Check analysis statistics** regularly to monitor system performance
+10. **💾 Create backups** before clearing analysis data
+11. **🔍 Filter analysis history** by date, status, or call ID for targeted insights
+12. **🔗 Monitor webhook health** and set up alerts for failures
+13. **🔄 Implement retry logic** in Certus for webhook reliability
 
 ---
 

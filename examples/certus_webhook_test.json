@@ -1,0 +1,74 @@
+{
+  "call_id": "certus_call_12345",
+  "dialog": [
+    {
+      "speaker": "user",
+      "text": "Hi, I want to order a pizza for delivery",
+      "timestamp": "2024-01-15T14:30:00Z"
+    },
+    {
+      "speaker": "bot",
+      "text": "Welcome to Pizza Palace! What size pizza would you like?",
+      "timestamp": "2024-01-15T14:30:02Z"
+    },
+    {
+      "speaker": "user",
+      "text": "I want a large pepperoni pizza",
+      "timestamp": "2024-01-15T14:30:05Z"
+    },
+    {
+      "speaker": "bot",
+      "text": "Great choice! A large pepperoni pizza. What's your delivery address?",
+      "timestamp": "2024-01-15T14:30:08Z"
+    },
+    {
+      "speaker": "user",
+      "text": "123 Main Street, Bandra West, Mumbai",
+      "timestamp": "2024-01-15T14:30:12Z"
+    },
+    {
+      "speaker": "bot",
+      "text": "I'm sorry, we don't deliver to that area. We only deliver within 5km of our restaurant.",
+      "timestamp": "2024-01-15T14:30:15Z"
+    },
+    {
+      "speaker": "user",
+      "text": "What? That's ridiculous! I've ordered from you before!",
+      "timestamp": "2024-01-15T14:30:18Z"
+    },
+    {
+      "speaker": "bot",
+      "text": "I apologize for the inconvenience. Would you like to pick up your order instead?",
+      "timestamp": "2024-01-15T14:30:22Z"
+    },
+    {
+      "speaker": "user",
+      "text": "No, I want delivery! This is terrible customer service!",
+      "timestamp": "2024-01-15T14:30:25Z"
+    },
+    {
+      "speaker": "bot",
+      "text": "I understand your frustration. Let me check with my manager about delivery to your area.",
+      "timestamp": "2024-01-15T14:30:28Z"
+    },
+    {
+      "speaker": "user",
+      "text": "Forget it! I'm calling another restaurant!",
+      "timestamp": "2024-01-15T14:30:32Z"
+    }
+  ],
+  "metadata": {
+    "certus_call_id": "certus_12345",
+    "failure_reason": "delivery_area_dispute",
+    "call_duration": 32,
+    "customer_satisfaction": "low",
+    "restaurant_id": "pizza_palace_001",
+    "customer_id": "cust_456789",
+    "call_timestamp": "2024-01-15T14:30:00Z",
+    "certus_confidence_score": 0.4,
+    "intent_recognized": "order_pizza",
+    "failure_category": "delivery_issue",
+    "customer_emotion": "frustrated",
+    "escalation_triggered": true
+  }
+} 

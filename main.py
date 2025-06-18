@@ -48,6 +48,7 @@ async def root():
             "analyze_batch": "/analyze-batch",
             "pipeline": "/pipeline",
             "ingest": "/ingest-transcript",
+            "webhook": "/webhook",
             "analysis_history": "/analysis-history",
             "analysis_stats": "/analysis-stats",
             "analysis_backup": "/analysis-backup",
@@ -388,6 +389,109 @@ async def get_call_analysis_history(call_id: str):
     except Exception as e:
         logger.error(f"Error retrieving analysis history for call {call_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to retrieve call history: {str(e)}")
+
+@app.post("/webhook")
+async def certus_webhook(transcript: CallTranscript, background_tasks: BackgroundTasks):
+    """
+    🔗 CERTUS WEBHOOK: Auto-ingest failed call transcripts
+    
+    This endpoint is designed for Certus integration to automatically send failed call transcripts.
+    Certus can configure this webhook to trigger when a call fails, and the system will:
+    1. Receive the failed call transcript
+    2. Process it in the background (non-blocking)
+    3. Return immediate acknowledgment
+    4. Analyze the call and store results automatically
+    
+    Expected Certus payload format:
+    {
+        "call_id": "certus_call_12345",
+        "dialog": [
+            {"speaker": "user", "text": "Do you deliver to Bandra?"},
+            {"speaker": "bot", "text": "We are open 11 to 10."}
+        ],
+        "metadata": {
+            "certus_call_id": "certus_12345",
+            "failure_reason": "intent_misunderstanding",
+            "call_duration": 45,
+            "customer_satisfaction": "low"
+        }
+    }
+    """
+    try:
+        logger.info(f"🔗 Certus webhook received for call: {transcript.call_id}")
+        
+        # Add webhook processing to background tasks
+        background_tasks.add_task(process_certus_webhook, transcript)
+        
+        # Return immediate acknowledgment
+        return {
+            "status": "received",
+            "call_id": transcript.call_id,
+            "message": "Call transcript queued for analysis",
+            "webhook_id": f"webhook_{int(time.time())}_{transcript.call_id}",
+            "timestamp": time.time()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error processing Certus webhook for call {transcript.call_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Webhook processing failed: {str(e)}")
+
+async def process_certus_webhook(transcript: CallTranscript):
+    """
+    Background task to process Certus webhook calls
+    
+    This function runs asynchronously to:
+    1. Analyze the failed call transcript
+    2. Store the results
+    3. Log the processing status
+    """
+    try:
+        logger.info(f"🔄 Processing Certus webhook call: {transcript.call_id}")
+        
+        # Add Certus-specific metadata if not present
+        if not transcript.metadata:
+            transcript.metadata = {}
+        
+        transcript.metadata.update({
+            "source": "certus_webhook",
+            "webhook_timestamp": time.time(),
+            "processing_status": "started"
+        })
+        
+        # Analyze the transcript
+        result = analyzer.analyze_transcript(transcript)
+        
+        # Update metadata with results
+        transcript.metadata.update({
+            "processing_status": "completed",
+            "analysis_status": result.status,
+            "processing_timestamp": time.time()
+        })
+        
+        # Log the results
+        if result.status == "analyzed":
+            logger.info(f"✅ Certus call {transcript.call_id} analyzed successfully")
+            if result.analysis and result.analysis.issue_detected:
+                logger.warning(f"🚨 Issues detected in Certus call {transcript.call_id}: {result.analysis.issue_reason}")
+        elif result.status == "skipped":
+            logger.info(f"⏭️ Certus call {transcript.call_id} skipped (no issues detected)")
+        else:
+            logger.error(f"❌ Certus call {transcript.call_id} analysis failed: {result.error}")
+        
+        # Store the transcript with metadata
+        await pipeline.ingest_transcript(transcript, transcript.metadata)
+        
+        logger.info(f"✅ Certus webhook processing completed for call: {transcript.call_id}")
+        
+    except Exception as e:
+        logger.error(f"❌ Error in Certus webhook processing for call {transcript.call_id}: {str(e)}")
+        # Update metadata with error
+        if transcript.metadata:
+            transcript.metadata.update({
+                "processing_status": "error",
+                "error_message": str(e),
+                "error_timestamp": time.time()
+            })
 
 # Error handlers
 @app.exception_handler(Exception)
