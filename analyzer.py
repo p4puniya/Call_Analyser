@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from models import CallTranscript, AnalysisResult, CallAnalysisResponse
 from prompt_builder import prompt_builder
 from prefilter import failure_detector
+from storage import save_analysis
 
 # Load environment variables
 load_dotenv()
@@ -39,11 +40,15 @@ class CallAnalyzer:
             failure_check = failure_detector.is_call_possibly_failed(transcript)
             
             if not failure_check["failed"]:
-                return CallAnalysisResponse(
+                result = CallAnalysisResponse(
                     call_id=transcript.call_id,
                     status="skipped",
                     reason=f"No issues detected (confidence: {failure_check['confidence']:.2f})"
                 )
+                
+                # Save the skipped result to storage
+                save_analysis(result.dict())
+                return result
             
             # Build the analysis prompt
             prompt = prompt_builder.build_analysis_prompt(transcript.dialog)
@@ -52,11 +57,15 @@ class CallAnalyzer:
             analysis_result = self._call_llm(prompt)
             
             if "error" in analysis_result:
-                return CallAnalysisResponse(
+                result = CallAnalysisResponse(
                     call_id=transcript.call_id,
                     status="error",
                     error=analysis_result["error"]
                 )
+                
+                # Save the error result to storage
+                save_analysis(result.dict())
+                return result
             
             # Convert to AnalysisResult model
             analysis = AnalysisResult(
@@ -68,19 +77,27 @@ class CallAnalyzer:
                 confidence_score=analysis_result.get("confidence_score", 0.5)
             )
             
-            return CallAnalysisResponse(
+            result = CallAnalysisResponse(
                 call_id=transcript.call_id,
                 status="analyzed",
                 analysis=analysis
             )
             
+            # Save the successful analysis to storage
+            save_analysis(result.dict())
+            return result
+            
         except Exception as e:
             logger.error(f"Error analyzing transcript {transcript.call_id}: {str(e)}")
-            return CallAnalysisResponse(
+            result = CallAnalysisResponse(
                 call_id=transcript.call_id,
                 status="error",
                 error=str(e)
             )
+            
+            # Save the error result to storage
+            save_analysis(result.dict())
+            return result
     
     def analyze_batch(self, transcripts: List[CallTranscript]) -> List[CallAnalysisResponse]:
         """

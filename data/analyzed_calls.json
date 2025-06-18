@@ -1,0 +1,40 @@
+[
+  {
+    "call_id": "call_001",
+    "status": "analyzed",
+    "reason": null,
+    "analysis": {
+      "intent": "Customer wanted to order delivery to Bandra West",
+      "bot_response_summary": "The bot provided general information about the restaurant's operating hours instead of addressing the delivery inquiry directly.",
+      "issue_detected": true,
+      "issue_reason": "The bot failed to recognize the customer's intent and did not provide a relevant response to the delivery query.",
+      "suggested_fix": "Implement intent recognition for delivery queries and provide a clear 'yes' or 'no' response. Ensure access to delivery information is functional.",
+      "confidence_score": 0.6
+    },
+    "error": null,
+    "timestamp": "2025-06-18T12:26:23.587546+00:00"
+  },
+  {
+    "call_id": "call_002",
+    "status": "skipped",
+    "reason": "No issues detected (confidence: 0.00)",
+    "analysis": null,
+    "error": null,
+    "timestamp": "2025-06-18T12:26:23.589066+00:00"
+  },
+  {
+    "call_id": "call_003",
+    "status": "analyzed",
+    "reason": null,
+    "analysis": {
+      "intent": "Customer wanted to order a large Supreme pizza for delivery",
+      "bot_response_summary": "The bot effectively guided the customer through the menu, provided pricing information, took the order, and confirmed delivery details",
+      "issue_detected": false,
+      "issue_reason": "No issues detected",
+      "suggested_fix": "N/A",
+      "confidence_score": 1.0
+    },
+    "error": null,
+    "timestamp": "2025-06-18T12:26:27.247788+00:00"
+  }
+]

@@ -1,0 +1,75 @@
+{
+  "pipeline_id": "pipeline_20250618_174023",
+  "timestamp": "2025-06-18T17:40:23.290673",
+  "input_count": 3,
+  "analysis_results": [
+    "call_id='call_001' status='analyzed' reason=None analysis=AnalysisResult(intent='Customer wanted to order delivery to Bandra West', bot_response_summary=\"The bot failed to address the customer's query about delivery to Bandra West and provided generic information instead.\", issue_detected=True, issue_reason=\"The bot did not accurately recognize the customer's intent and failed to provide a relevant response.\", suggested_fix=\"Implement intent recognition for delivery location queries and provide a direct 'yes' or 'no' response. Ensure access to delivery area information is functional.\", confidence_score=0.4) error=None",
+    "call_id='call_002' status='skipped' reason='No issues detected (confidence: 0.00)' analysis=None error=None",
+    "call_id='call_003' status='analyzed' reason=None analysis=AnalysisResult(intent='Customer wants to order a large Supreme pizza for delivery', bot_response_summary='The bot effectively guided the customer through the menu, provided pricing information, took the order, and confirmed the delivery details.', issue_detected=False, issue_reason='No issues detected', suggested_fix='N/A', confidence_score=1.0) error=None"
+  ],
+  "fix_results": {
+    "call_001": {
+      "prompt_improvements": [
+        {
+          "issue": "Lack of specificity in delivery location query",
+          "current_prompt": "Where would you like your order delivered?",
+          "suggested_prompt": "Please provide the specific delivery address, including the area or neighborhood.",
+          "rationale": "This change will help the bot accurately identify the delivery location and provide relevant information."
+        }
+      ],
+      "logic_improvements": [
+        {
+          "issue": "Failure to address specific delivery location query",
+          "current_behavior": "Providing generic delivery information",
+          "suggested_behavior": "Implement intent recognition for delivery location queries and provide direct 'yes' or 'no' response based on availability.",
+          "implementation": "Update the bot's algorithm to detect delivery location queries and respond accordingly."
+        }
+      ],
+      "training_suggestions": [
+        {
+          "scenario": "Delivery location inquiries",
+          "examples": [
+            "Customer: Can you deliver to Bandra West?",
+            "Customer: Is delivery available in Andheri East?"
+          ],
+          "expected_outcome": "Bot accurately identifies the delivery location query and responds with specific information."
+        }
+      ],
+      "priority": "high",
+      "estimated_impact": "Improved intent recognition and response accuracy leading to better customer satisfaction and increased order conversions."
+    }
+  },
+  "summary": {
+    "common_issues": [
+      {
+        "issue": "Intent recognition accuracy",
+        "frequency": "1 out of 2 calls",
+        "impact": "Moderate"
+      }
+    ],
+    "top_improvements": [
+      {
+        "improvement": "Enhance intent recognition accuracy",
+        "priority": "High",
+        "expected_benefit": "Improved customer satisfaction and faster problem resolution"
+      }
+    ],
+    "overall_quality_score": 0.5,
+    "trends": "Inconsistent intent recognition accuracy across calls",
+    "recommendations": [
+      "Implement more robust intent recognition algorithms",
+      "Provide training data to improve bot's understanding of customer intents"
+    ]
+  },
+  "statistics": {
+    "total_calls": 3,
+    "analyzed": 2,
+    "skipped": 1,
+    "errors": 0,
+    "issues_detected": 1,
+    "issue_rate": 0.5,
+    "average_confidence": 0.7,
+    "success_rate": 0.6666666666666666,
+    "processing_efficiency": 1.0
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "transcripts": [
+    {
+      "call_id": "call_001",
+      "dialog": [
+        {
+          "speaker": "user",
+          "text": "Hi, I'd like to order delivery to Bandra West"
+        },
+        {
+          "speaker": "bot",
+          "text": "Welcome to our restaurant! We are open from 11 AM to 10 PM daily."
+        },
+        {
+          "speaker": "user",
+          "text": "That's not what I asked. Do you deliver to Bandra West?"
+        },
+        {
+          "speaker": "bot",
+          "text": "I apologize for the confusion. Let me check our delivery areas."
+        },
+        {
+          "speaker": "user",
+          "text": "Can you just tell me yes or no?"
+        },
+        {
+          "speaker": "bot",
+          "text": "I'm sorry, I'm having trouble accessing our delivery information right now."
+        },
+        {
+          "speaker": "user",
+          "text": "This is ridiculous. I'm hanging up."
+        }
+      ],
+      "metadata": {
+        "restaurant": "Sample Restaurant",
+        "timestamp": "2024-01-15T14:30:00Z",
+        "status": "failed"
+      }
+    },
+    {
+      "call_id": "call_002",
+      "dialog": [
+        {
+          "speaker": "user",
+          "text": "Hi, I'd like to order a pizza for delivery"
+        },
+        {
+          "speaker": "bot",
+          "text": "Great! I'd be happy to help you order a pizza. What size would you like?"
+        },
+        {
+          "speaker": "user",
+          "text": "Large please"
+        },
+        {
+          "speaker": "bot",
+          "text": "Perfect! We have several large pizza options. Would you like our classic Margherita, Pepperoni, or Supreme?"
+        },
+        {
+          "speaker": "user",
+          "text": "Pepperoni sounds good"
+        },
+        {
+          "speaker": "bot",
+          "text": "Excellent choice! Your large pepperoni pizza will be ready in 25-30 minutes. What's your delivery address?"
+        },
+        {
+          "speaker": "user",
+          "text": "123 Main Street, Apartment 4B"
+        },
+        {
+          "speaker": "bot",
+          "text": "Perfect! I have your order: 1 large pepperoni pizza for delivery to 123 Main Street, Apartment 4B. Your total is $18.99. Would you like to pay with card or cash?"
+        },
+        {
+          "speaker": "user",
+          "text": "Card please"
+        },
+        {
+          "speaker": "bot",
+          "text": "Great! Your order is confirmed and will be delivered in 25-30 minutes. Thank you for choosing us!"
+        },
+        {
+          "speaker": "user",
+          "text": "Thank you!"
+        }
+      ],
+      "metadata": {
+        "restaurant": "Sample Restaurant",
+        "timestamp": "2024-01-15T15:45:00Z",
+        "status": "success"
+      }
+    },
+    {
+      "call_id": "call_003",
+      "dialog": [
+        {
+          "speaker": "user",
+          "text": "Hello? Is anyone there?"
+        },
+        {
+          "speaker": "bot",
+          "text": "Hello! Welcome to our restaurant. How can I help you today?"
+        },
+        {
+          "speaker": "user",
+          "text": "I want to know your menu"
+        },
+        {
+          "speaker": "bot",
+          "text": "I'd be happy to help you with our menu. We have pizzas, pastas, salads, and desserts. What type of food are you interested in?"
+        },
+        {
+          "speaker": "user",
+          "text": "What pizzas do you have?"
+        },
+        {
+          "speaker": "bot",
+          "text": "We have Margherita, Pepperoni, Supreme, Hawaiian, and Vegetarian pizzas. All pizzas come in small, medium, and large sizes."
+        },
+        {
+          "speaker": "user",
+          "text": "What's in the Supreme?"
+        },
+        {
+          "speaker": "bot",
+          "text": "Our Supreme pizza includes pepperoni, sausage, mushrooms, green peppers, onions, and extra cheese."
+        },
+        {
+          "speaker": "user",
+          "text": "That sounds good. How much is a large Supreme?"
+        },
+        {
+          "speaker": "bot",
+          "text": "A large Supreme pizza is $22.99. Would you like to order one?"
+        },
+        {
+          "speaker": "user",
+          "text": "Yes, please"
+        },
+        {
+          "speaker": "bot",
+          "text": "Great! I'll help you place your order. What's your delivery address?"
+        },
+        {
+          "speaker": "user",
+          "text": "456 Oak Avenue, Suite 7"
+        },
+        {
+          "speaker": "bot",
+          "text": "Perfect! Your large Supreme pizza will be delivered to 456 Oak Avenue, Suite 7. Your total is $22.99. How would you like to pay?"
+        },
+        {
+          "speaker": "user",
+          "text": "Cash on delivery"
+        },
+        {
+          "speaker": "bot",
+          "text": "Excellent! Your order is confirmed. Your pizza will be delivered in 25-30 minutes. Thank you for your order!"
+        }
+      ],
+      "metadata": {
+        "restaurant": "Sample Restaurant",
+        "timestamp": "2024-01-15T16:15:00Z",
+        "status": "success"
+      }
+    }
+  ]
+} 
